@@ -1,0 +1,240 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Бездна: Хроники</title>
+<style>
+:root{--bg:#0b0d14;--tx:#eceff4;--ac:#e8b04a;--bs:1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html,body{height:100%;margin:0;background:#0b0d14;color:var(--tx);font:14px system-ui,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+body{position:relative}canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+button{font:inherit;color:var(--tx);cursor:pointer}
+.fb{background:linear-gradient(#3a2d1a,#1d160c);border:2px solid #8a6a2f;border-radius:10px;padding:10px 18px;font-size:16px;font-family:Georgia,serif}
+.scr{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;z-index:5}.scr.on{display:flex}
+#menu{background:none;align-items:flex-start;justify-content:flex-end;padding:0 0 22px 28px}
+#menu h1{position:absolute;top:12%;left:0;right:0;text-align:center;font:700 56px Georgia,serif;margin:0;background:linear-gradient(#ffe9a8,#e8902a);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 3px 6px #000)}
+#menu div{display:flex;flex-direction:column;gap:10px}
+.dim{background:#0b0d14e8;overflow:auto;touch-action:pan-y;justify-content:flex-start;padding:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.card{background:#1a1d24;border:2px solid #8a6a2f;border-radius:12px;padding:12px;min-width:150px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.set{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:300px;padding:4px 0}
+input,select{padding:8px;border-radius:8px;border:1px solid #555;background:#12151b;color:var(--tx);font-size:15px}
+#top{position:absolute;top:calc(6px + env(safe-area-inset-top,0px));left:10px;pointer-events:none;text-shadow:0 1px 3px #000;display:none;z-index:4}
+#hpb{height:12px;width:200px;background:#0009;border:1px solid #000;border-radius:7px;overflow:hidden}#hp{height:100%;background:linear-gradient(#ff6b6b,#b91c1c)}
+#hot{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(8px + env(safe-area-inset-bottom,0px));display:none;gap:4px;z-index:4}
+.s{background:#1a1d24e0;border:2px solid #3a3f4c;border-radius:9px;padding:3px 6px;display:flex;align-items:center;gap:5px;font-size:13px}.s.on{border-color:var(--ac)}.s i{width:16px;height:16px;border-radius:3px}
+#ctl{position:absolute;inset:0;display:none;pointer-events:none;z-index:4}
+.cbtn{position:absolute;width:calc(64px*var(--bs));height:calc(64px*var(--bs));border-radius:50%;border:2px solid #fff5;background:#1a1d24b0;font-size:24px;padding:0;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center}
+.cbtn.edit-mode{border-color:#e8b04a;box-shadow:0 0 10px #e8b04a;background:#e8b04a55}
+#pz{position:absolute;top:calc(6px + env(safe-area-inset-top,0px));right:10px;width:44px;height:44px;border-radius:10px;border:2px solid #8a6a2f;background:#1a1d24d0;font-size:20px;display:none;z-index:4}
+#cfg-ctl{position:absolute;top:calc(6px + env(safe-area-inset-top,0px));right:60px;height:44px;padding:0 12px;border-radius:10px;border:2px solid #8a6a2f;background:#1a1d24d0;font-size:14px;display:none;z-index:4;color:#fff}
+body.pl #top,body.pl #pz,body.pl #cfg-ctl{display:block}body.pl #hot,body.pl #ctl{display:flex}
+#bk{position:absolute;inset:0;background:#2b1d0f;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:6}#bk.on{display:flex}
+.pgs{display:flex;width:min(94%,860px);height:68%;border-radius:8px;box-shadow:0 8px 30px #000;border:6px solid #5a3a1a}
+.pg{flex:1;padding:10px 16px;overflow:hidden;font-family:Georgia,serif;color:#3b2a14;background:linear-gradient(#f6e8c0,#e8d199)}.pg:first-child{border-right:3px double #8a6a2f}
+.pg h3{margin:0 0 4px;text-align:center;font-size:15px}
+.rr{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #8a6a2f55;font-size:13px}.rr small{display:block;color:#6b5330;font-size:11px}
+.rr button{background:#7a4b1a;border:1px solid #3b2a14;border-radius:6px;padding:5px 9px;color:#fff3d6;font-size:12px}.rr button:disabled{opacity:.35}
+.ok{color:#256b2a}.no{color:#9a2a2a}
+#ro{position:absolute;inset:0;background:#0b0d14;z-index:20;display:none;align-items:center;justify-content:center;text-align:center;font-size:20px;padding:20px}
+@media (orientation:portrait){#ro{display:flex}}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="top"><div id="hpb"><div id="hp"></div></div><div id="info"></div></div>
+<button id="pz">☰</button>
+<button id="cfg-ctl" onclick="toggleEditCtl()">⚙️ Кнопки</button>
+<div id="hot"></div>
+<div id="ctl">
+  <button id="bl" class="cbtn">◀</button>
+  <button id="br" class="cbtn">▶</button>
+  <button id="bm" class="cbtn">⛏</button>
+  <button id="bb" class="cbtn">📖</button>
+  <button id="bj" class="cbtn">⤒</button>
+</div>
+<div id="menu" class="scr on"><h1>БЕЗДНА</h1><div><button class="fb" onclick="sc('slots')">▶ Играть</button><button class="fb" onclick="prev='menu';sc('set')">⚙ Настройки</button></div></div>
+<div id="slots" class="scr dim"></div><div id="set" class="scr dim"></div><div id="pause" class="scr dim"></div>
+<div id="bk"></div>
+<div id="ro">Поверни телефон горизонтально 📱↔️</div>
+<script>
+const $=s=>document.querySelector(s),R=Math.random,W=300,H=150,SURF=52;
+const AD=['Тихий','Багровый','Ледяной','Пепельный','Изумрудный','Лавовый','Туманный','Хрустальный','Ржавый','Звёздный','Болотный','Янтарный'];
+const KD=['Лес','Пустыня','Холмы','Каньон','Равнина','Тундра','Пещеры','Руины','Утёс','Долина'];
+const EL=['земной','лесной','ледяной','пустынный','огненный','водный','ядовитый','теневой','звёздный','кристальный'];
+const BODY=['Слизень','Летун','Бегун','Парящий','Прыгун','Червь','Призрак','Краб'],RM=['I','II','III','IV','V'];
+const OA=['Кор','Вел','Дра','Мер','Ост','Зар','Лун','Сол','Тир','Нок'],OB=['ит','ий','ум','ан','ор','ис','ал','ен','ур','ем'];
+const BOSS=['Страж Бездны','Пепельный Король','Ледяная Вдова','Ржавый Колосс','Болотная Матрона','Лавовый Змей','Туманный Жнец','Хрустальная Гидра','Янтарный Страж','Звёздный Пожиратель','Тёмный Архонт','Багровый Левиафан','Костяной Владыка','Грозовой Титан','Песчаная Королева','Теневой Палач','Небесный Кузнец','Бездонный Глаз','Страж Времён','Повелитель Бездны'];
+const DIF=[{n:'Лёгкая',d:.6,h:.8},{n:'Нормальная',d:1,h:1},{n:'Тяжёлая',d:1.5,h:1.4},{n:'Хардкор (смерть = конец)',d:2,h:1.6,pm:1}];
+const BN=['','Земля','Трава','Камень','Дерево','Листва','','','','Доски','Верстак','Печь'],BH=[0,1,1,3,2,.4,0,0,0,2,1,2];
+const ore=i=>i<4?['Медь','Железо','Золото','Багрянец'][i]:OA[i%10]+OB[i/10|0];
+const nm=id=>id<20?BN[id]:id<120?'Руда: '+ore(id-20):'Слиток: '+ore(id-200);
+const hard=t=>t<20?BH[t]:2+(t-20)*.1,need=t=>t<20?0:t-20;
+const bname=b=>KD[b%10]+' «'+AD[b/10|0]+'»';
+const lsG=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},lsS=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const SET=Object.assign({kl:'ArrowLeft',kr:'ArrowRight',kj:' ',kb:'b',kp:'Escape',q:1,vol:.5,btn:1,swap:0},lsG('abyss_set',{}));
+const cv=$('#c'),g=cv.getContext('2d');let TS=32,st='menu',slot=-1,prev='menu',dif=1,meta=lsG('abyss_meta',[null,null,null]);
+const M=new Uint8Array(W*H);let SH=[],BM=[],inv={},E=[],PR=[],PT=[],clock=.1,kills=0,sel=0,mode=0,mine={x:-1,y:0,p:0},ptr=null,spT=2,tip='',tipT=0,rb='',bp=0,bf=0;
+const P={x:W/2,y:0,vx:0,vy:0,w:.7,h:1.8,hp:100,on:false,pw:0,sw:0,df:0,cd:0,pc:0,inv:0,auto:true,face:1,sa:0,wp:0},keys={},cam={x:0,y:0};
+const STAR=Array.from({length:70},()=>[R(),R(),R()<.2?2:1]);
+
+/* Текстурный генератор в стиле Terraria */
+const T_SIZE=16;
+const texCache={};
+function getTexture(type, id=0) {
+  const key = type+'_'+id;
+  if(texCache[key]) return texCache[key];
+  const c = document.createElement('canvas');
+  c.width = c.height = T_SIZE;
+  const cx = c.getContext('2d');
+  cx.imageSmoothingEnabled = false;
+
+  let baseColor='#705038', accentColor='#5a3d28';
+  if(type==='block') {
+    if(id===1) { baseColor='#6e4a2e'; accentColor='#52341c'; } // Земля
+    else if(id===2) { baseColor='#488225'; accentColor='#356119'; } // Трава
+    else if(id===3) { baseColor='#61666e'; accentColor='#474a52'; } // Камень
+    else if(id===4) { baseColor='#80542f'; accentColor='#57371c'; } // Дерево
+    else if(id===5) { baseColor='#2b6925'; accentColor='#1a4716'; } // Листва
+    else if(id===9) { baseColor='#a37446'; accentColor='#7a542e'; } // Доски
+    else if(id===10) { baseColor='#8c5e35'; accentColor='#4a3017'; } // Верстак
+    else if(id===11) { baseColor='#52555a'; accentColor='#e06016'; } // Печь
+    else if(id>=20) {
+      const hue = ((id-20)*37)%360;
+      baseColor = `hsl(${hue}, 60%, 45%)`;
+      accentColor = `hsl(${hue}, 80%, 65%)`;
+    }
+  }
+
+  cx.fillStyle = baseColor;
+  cx.fillRect(0,0,T_SIZE,T_SIZE);
+  cx.fillStyle = accentColor;
+  for(let i=0; i<18; i++) {
+    const rx = (R()*T_SIZE)|0, ry = (R()*T_SIZE)|0;
+    cx.fillRect(rx, ry, 2, 2);
+  }
+  cx.fillStyle = 'rgba(0,0,0,0.18)';
+  cx.fillRect(0, T_SIZE-2, T_SIZE, 2);
+  cx.fillRect(T_SIZE-2, 0, 2, T_SIZE);
+  cx.fillStyle = 'rgba(255,255,255,0.12)';
+  cx.fillRect(0, 0, T_SIZE, 2);
+  cx.fillRect(0, 0, 2, T_SIZE);
+
+  return texCache[key] = c;
+}
+
+/* Кастомизация расположения кнопок */
+let editCtlMode = false;
+let btnPositions = lsG('abyss_btn_pos', {
+  bl: {left: 15, bottom: 20},
+  br: {left: 85, bottom: 20},
+  bj: {right: 20, bottom: 90},
+  bm: {right: 90, bottom: 20},
+  bb: {right: 20, bottom: 20}
+});
+
+function applyBtnPositions() {
+  for(const id in btnPositions) {
+    const el = $('#'+id);
+    if(!el) continue;
+    const p = btnPositions[id];
+    el.style.left = p.left !== undefined ? p.left+'px' : 'auto';
+    el.style.right = p.right !== undefined ? p.right+'px' : 'auto';
+    el.style.top = p.top !== undefined ? p.top+'px' : 'auto';
+    el.style.bottom = p.bottom !== undefined ? p.bottom+'px' : 'auto';
+  }
+}
+applyBtnPositions();
+
+function toggleEditCtl() {
+  editCtlMode = !editCtlMode;
+  $('#cfg-ctl').textContent = editCtlMode ? '💾 Сохранить' : '⚙️ Кнопки';
+  document.querySelectorAll('.cbtn').forEach(b => b.classList.toggle('edit-mode', editCtlMode));
+}
+
+document.querySelectorAll('.cbtn').forEach(btn => {
+  let dragging = false, offsetX = 0, offsetY = 0;
+  btn.addEventListener('pointerdown', e => {
+    if(!editCtlMode) return;
+    dragging = true;
+    const rect = btn.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    btn.setPointerCapture(e.pointerId);
+    e.stopPropagation();
+  });
+  btn.addEventListener('pointermove', e => {
+    if(!dragging || !editCtlMode) return;
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+    btn.style.left = x + 'px';
+    btn.style.top = y + 'px';
+    btn.style.right = 'auto';
+    btn.style.bottom = 'auto';
+  });
+  const stopDrag = e => {
+    if(!dragging) return;
+    dragging = false;
+    const rect = btn.getBoundingClientRect();
+    btnPositions[btn.id] = { left: rect.left, top: rect.top };
+    lsS('abyss_btn_pos', btnPositions);
+  };
+  btn.addEventListener('pointerup', stopDrag);
+  btn.addEventListener('pointercancel', stopDrag);
+});
+
+function rs(){
+  const d=devicePixelRatio||1;
+  cv.width=cv.clientWidth*d;cv.height=cv.clientHeight*d;
+  g.setTransform(d,0,0,d,0,0);
+  g.imageSmoothingEnabled = false;
+  TS=Math.max(20,Math.round(cv.clientHeight/12));
+  document.documentElement.style.setProperty('--bs',SET.btn);
+}
+addEventListener('resize',rs);
+
+let AC;function beep(f,d=.08,v=.5){if(!SET.vol)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),q=AC.createGain();o.frequency.value=f;q.gain.value=SET.vol*v*.15;o.connect(q);q.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+function rnd(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const AMP=[4,2,7,9,2,3,5,4,10,3],cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+function gen(seed){const r=rnd(seed),ids=[...Array(120).keys()];for(let i=119;i>0;i--){const j=r()*(i+1)|0;[ids[i],ids[j]]=[ids[j],ids[i]]}BM=ids.slice(0,12);M.fill(0);
+ for(let x=0;x<W;x++){const fx=x/25-.5,i0=Math.floor(fx),t=fx-i0,a0=AMP[BM[cl(i0,0,11)]%10],a1=AMP[BM[cl(i0+1,0,11)]%10],am=a0+(a1-a0)*t;
+  const s=SURF+Math.round(am*Math.sin(x*.07)+am*.4*Math.sin(x*.19+2)+1.5*Math.sin(x*.43));SH[x]=s;
+  for(let y=s;y<H;y++){let k=y==s?2:y<s+6?1:3;const d=y-s;
+   if(d>8&&Math.sin(x*.31)*Math.sin(y*.27)+Math.sin((x+y)*.13)>1.25)k=0;
+   else if(k==3&&r()<.06){const hi=Math.min(99,d/.95|0);k=20+Math.max(0,hi-(r()*r()*14|0))}
+   M[y*W+x]=k}}
+ for(let x=4;x<W-4;x+=2+(r()*5|0)){const s=SH[x],h=4+(r()*2|0);for(let i=1;i<=h;i++)M[(s-i)*W+x]=4;
+  for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=1;dy++){const k=(s-h+dy)*W+x+dx;if(!M[k])M[k]=5}}}
+function sol(x,y){if(x<0||x>=W||y>=H)return true;if(y<0)return false;const t=M[y*W+x];return t>0&&t!=5&&t!=10&&t!=11}
+function hit(o){const x0=Math.floor(o.x-o.w/2),x1=Math.floor(o.x+o.w/2),y0=Math.floor(o.y-o.h),y1=Math.floor(o.y-1e-4);for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)if(sol(x,y))return true;return false}
+function step(o,dt){const was=o.on;o.on=false;const dx=o.vx*dt,dy=o.vy*dt;o.x+=dx;
+ if(hit(o)){let ok=false;if(was&&o.auto&&dx){o.y-=1.02;ok=!hit(o);if(!ok)o.y+=1.02}if(!ok){o.x-=dx;o.vx=0}}
+ o.y+=dy;if(hit(o)){if(dy>0){o.y=Math.floor(o.y);o.on=true}else o.y=Math.floor(o.y-o.h)+1+o.h;o.vy=0}}
+const surf=x=>{for(let y=0;y<H;y++)if(sol(x,y))return y;return 40};
+function respawn(){P.x=W/2;P.y=surf(W/2|0);P.vx=P.vy=0;P.hp=100;E=E.filter(e=>e.boss)}
+const fday=()=>cl(.5+.9*Math.sin(clock*Math.PI*2),0,1),night=()=>fday()<.35;
+const add=(id,n=1)=>inv[id]=(inv[id]||0)+n,have=(id)=>inv[id]||0;
+function near(id){for(let y=Math.floor(P.y-3);y<=P.y+2;y++)for(let x=Math.floor(P.x-4);x<=P.x+4;x++)if(x>=0&&x<W&&y>=0&&y<H&&M[y*W+x]==id)return true;return false}
+const up=(k,v)=>()=>{P[k]=Math.max(P[k],v)};
+const RC=[{n:'Доски ×2',c:{4:1},f:()=>add(9,2)},{n:'Верстак',c:{9:10},f:()=>add(10)},{n:'Печь',c:{3:20,9:4},st:10,f:()=>add(11)}];
+for(let i=0;i<100;i++){const o=ore(i),b=200+i;
+ RC.push({n:'Слиток: '+o,c:{[20+i]:3},st:11,f:()=>add(b)},{n:'Кирка: '+o+' (ур.'+(i+1)+')',c:{[b]:6,9:4},st:10,f:up('pw',i+1)},{n:'Меч: '+o+' (ур.'+(i+1)+')',c:{[b]:8},st:10,f:up('sw',i+1)},{n:'Броня: '+o+' (ур.'+(i+1)+')',c:{[b]:12},st:10,f:up('df',i+1)});
+ if(i%5==0&&i/5<20){const k=i/5;RC.push({n:'Призвать: '+BOSS[k],c:{[b]:6},st:10,ok:()=>!E.some(e=>e.boss),f:()=>spawnBoss(k)})}}
+const can=r=>Object.entries(r.c).every(([k,v])=>have(k)>=v)&&(!r.st||near(r.st))&&(!r.ok||r.ok());
+function mk(i){const r=RC[i];if(!can(r))return;for(const k in r.c)inv[k]-=r.c[k];r.f();beep(660,.1);hb();rBook()}
+function rBook(){const L=bf?RC.map((r,i)=>[r,i]).filter(a=>can(a[0])):RC.map((r,i)=>[r,i]),per=5,pages=Math.max(1,Math.ceil(L.length/(per*2)));bp=cl(bp,0,pages-1);const s=bp*per*2;
+ const pg=a=>L.slice(a,a+per).map(([r,i])=>`<div class="rr"><div>${r.n}<small>${Object.entries(r.c).map(([k,v])=>`<span class="${have(k)>=v?'ok':'no'}">${nm(+k)} ${have(k)}/${v}</span>`).join(', ')}${r.st?' · '+(r.st==10?'верстак':'печь')+(near(r.st)?' ✓':' ✗'):''}</small></div><button ${can(r)?'':'disabled'} onclick="mk(${i})">Создать</button></div>`).join('')||'<i>Пусто</i>';
+ $('#bk').innerHTML=`<div class="pgs"><div class="pg"><h3>📖 Книга рецептов</h3>${pg(s)}</div><div class="pg"><h3>стр. ${bp+1} / ${pages}</h3>${pg(s+per)}</div></div><div class="row"><button class="fb" onclick="bp-=10;rBook()">⏪</button><button class="fb" onclick="bp--;rBook()">◀</button><button class="fb" onclick="bp++;rBook()">▶</button><button class="fb" onclick="bp+=10;rBook()">⏩</button><button class="fb" onclick="bf^=1;bp=0;rBook()">${bf?'Все':'Доступные'}</button><button class="fb" onclick="$('#bk').classList.remove('on')">Закрыть</button></div>`}
+function openBook(){rBook();$('#bk').classList.add('on')}
+function sc(id){for(const s of['menu','slots','set','pause'])$('#'+s).classList.toggle('on',s==id);if(id=='slots')rSlots();if(id=='set')rSet();if(id=='pause')rPause()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function rSlots(){$('#slots').innerHTML='<h2 style="font-family:Georgia">Выбери мир</h2><div class="row">'+[0,1,2].map(i=>{const m=meta[i];return m?`<div class="card"><b>${esc(m.n)}</b><span>${DIF[m.d].n}</span><span>убито: ${m.k||0}</span><button class="fb" onclick="start(${i},0)">Играть</button><button class="fb" onclick="del(${i})">Удалить</button></div>`:`<div class="card"><b>Слот ${i+1}</b><span>пусто</span><button class="fb" onclick="nw(${i})">Новый мир</button></div>`}).join('')+'</div><button class="fb" onclick="sc(\'menu\')">← Назад</button>'}
+function nw(i){$('#slots').innerHTML=`<h2 style="font-family:Georgia">Новый мир</h2><div class="card"><input id="wn" value="Мир ${i+1}" maxlength="16"><select id="wd">${DIF.map((d,k)=>`<option value="${k}" ${k==1?'selected':''}>${d.n}</option>`).join('')}</select><button class="fb" onclick="meta[${i}]={n:$('#wn').value||'Мир',d:+$('#wd').value,k:0};lsS('abyss_meta',meta);start(${i},1)">Создать</button><button class="fb" onclick="rSlots()">Отмена</button></div>`}
+function del(i){if(!confirm('Удалить мир?'))return;meta[i]=null;lsS('abyss_meta',meta);try{localStorage.removeItem('abyss_s'+i)}catch(e){}rSlots()}
+function sv(){if(slot<0)return;try{let s='';for(let i=0;i<M.length;i+=8000)s+=String.fromCharCode.apply(null,M.subarray(i,i+8000));localStorage.setItem('abyss_s'+slot,JSON.stringify({m:s,bm:BM,sh:SH,x:P.x,y:P.y,i:inv,pw:P.pw,sw:P.sw,df:P.df,k:kills,c:clock}));meta[slot].k=kills;lsS('abyss_meta',meta)}catch(e){}}
+function start(i,isNew){slot=i;dif=meta[i].d;E=[];PR=[];PT=[];
+ if(isNew){gen(Date.now()%1e9);inv={};Object.assign(P,{pw:0,sw:0,df:0});kills=0;clock=.1;respawn()}
+ else{const d=lsG('abyss_s'+i,null);if(!d){start(i,1);return}for(let k=0;k<M.length;k++)M[k]=d.m.charCodeAt(k);BM=d.bm;SH=d.sh;P.x=d.x;P.y=d.y;inv=d.i;P.pw=d.pw;P.sw=d.sw;P.df=d.df;kills=d.k;clock=d.c;P.hp=100}
+ st='play';document.body.classList.add('pl');for(const s of['menu','slots','set','pause'])$('#'+s).classList.remove('on');mode=0;hb();rs();
+ Promise.resolve().then(()=>document.documentElement.requestFullscreen()).then(()=>screen.orientation.lock('landscape')).catch(()=>{})}
+function rPause(){$('#pause').innerHTML='<h2 style="font-family:Georgia">Пауза</h2><button class="fb" onclick="resume()">Продолжить</button><button class="fb" onclick="prev=\'pause\';sc(\'set\')">⚙ Настройки</button><button class="fb" onclick="sv();st=\'menu\';document.body.classList.remove(\'pl\');sc(\'menu\')">Сохранить и выйти</button>'}
+function resume(){for(const s of['pause','set'])$('#'+s).classList.remove('on');st='play'}
+function pauseGame(){if(st=='play'){st='pause';sv();sc('pause')}}
+const KN={kl:'Влево',kr:'Вправо',kj:'Прыжок',kb:'Книга рецептов',kp:'Пауза'};
+function rSet(){$('#set').innerHTML='<h2 style="font-family:Georgia">Настройки</h2><b>Управление (клавиатура)</b>'+Object.keys(KN).map(k=>`<div class="set"><span>${KN[k]}</span><button class="fb" style="padding:5px 12px" onclick="rb='${k}';this.textContent='нажми клавишу…'">${rb==k?'…':SET[k]==' '?'Пробел':SET[k]}</button></div>`).join('')+
+ `<div class="set"><span>Размер кнопок</span><input type="range" min=".7" max="1.5" step=".1" value="${SET.btn}" oninput="SET.btn=+this.value;sv2()"></div><b>Графика</b><div class="set"><span>Качество</span><select onchange="SET.q=+this.value;sv2()">${['Низкая','Средняя','Высокая'].map((n,i)=>`<option value="${i}" ${SET.q==i?'selected':''}>${n}</option>`).join('')}</select></div><b>Звук</b><div class="set"><span>Громкость</span><inpu
